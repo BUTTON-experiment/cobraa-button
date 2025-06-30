@@ -1,0 +1,28 @@
+#!/bin/bash
+# Configure script
+# Run once when you unpack source
+
+### Create environment files
+cobraaroot=$(pwd)
+envdir=$(find ~/ -path "*/ratpac-setup/env.sh")
+echo -e "Configuring COBRAA \n"
+echo -e "Creating COBRAA environment script env_cobraa.sh \n"
+echo -e "If you have installed ROOT, GEANT4, and RAT-PAC2 using the setup script, then the environment script /ratpac-setup/env.sh will be added to env_cobraa.sh so that everything can be sourced from one place.\n"
+
+cat > env_cobraa.sh <<EOF
+#!/bin/sh
+source $envdir
+COBRAAENV=$cobraaroot
+PATH=\$COBRAAENV:\$PATH
+PYTHONPATH=\$COBRAAENV:\$PYTHONPATH
+export COBRAAENV PATH PYTHONPATH
+function cobraa { python3 \$COBRAAENV/cobraa.py \$*; }
+EOF
+
+if [ -z "${envdir}" ]; then
+	echo -e "/ratpac-setup/env.sh not found. Aswell as the cobraa env_cobraa.sh, you will need to source the necessary files: thisroot.sh, geant4.sh, and ratpac.sh. \n"
+	sed -i -e '2d' env_cobraa.sh
+	else
+	echo -e "/ratpac-setup/env.sh found in $envdir. Can now be sourced from env_cobraa.sh. \n"
+fi
+
