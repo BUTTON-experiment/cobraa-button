@@ -2,6 +2,7 @@
 from ROOT import TFile,TH1D,TCanvas,THStack,TLegend,gPad,TColor
 import pandas as pd
 from .globals import *
+from pathlib import Path
 
 # This is a place for additional tools which can be useful in the 
 # simulation-reconstruction-analysis process for verification 
@@ -27,56 +28,151 @@ def triggers():
     loclist=[]
     decaylist=[]
     isolist=[]
+    ratelist=[]
     timelist=[]
     eventlist=[]
+    totalhiteventlist=[]
+    hiteventlist1=[]
+    hiteventlist2=[]
+    hiteventlist3=[]
+    hiteventlist4=[]
+    hiteventlist5=[]
+    hiteventlist6=[]
+    hiteventlist7=[]
+    hiteventlist8=[]
+    hiteventlist9=[]
+    hiteventlist10=[]
+    hiteventlist4plus=[]
     triggerlist=[]
+    triggerlist1=[]
+    triggerlist2=[]
+    triggerlist3=[]
+    triggerlist4=[]
+    triggerlist5=[]
+    triggerlist6=[]
+    triggerlist7=[]
+    triggerlist8=[]
+    triggerlist9=[]
+    triggerlist10=[]
+    triggerlist4plus=[]
     singleslist =[]
     uclist = []
+    detectionefflist=[]
+    detectionratelist=[]
+    totalpmtshit4pluslist=[]
     for _p in proc:
         for _loc in proc[_p]:
             for _element in d[_p][_loc]:
                 _tag = "%s_%s_%s"%(_element,_loc,_p)
                 _tag = _tag.replace(" ","")
-                _file = "fred_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
+                _file = "reconstructed_root_files%s/%s_%s_%s/%s_%s_%s_merged.root"%(additionalString,_element,_loc,_p,_element,_loc,_p)
                 _file = _file.replace(" ","")
-                print(_tag," from ",_file)
-                fredfile = TFile(_file)
-                # check the root file is valid
-                try:
-                    runSummary = fredfile.Get('runSummary')
-                    Entries = runSummary.GetEntries()
-                    totalEvents = 0
-                    for i in range(Entries):
-                        runSummary.GetEntry(i)
-                        totalEvents += runSummary.nEvents
-                    data = fredfile.Get('dear') # may also be named data
-                    triggers = data.GetEntries()
-                    singles = data.Draw("","n9>0")
-                    triggerrate = triggers/totalEvents*rates[_tag][0]
-                    singlesrate = singles/totalEvents*rates[_tag][0]
+                if os.path.isfile(_file):
+                    print(_tag," from ",_file)
+                    outputfile = TFile(_file)
+                    # check the root file is valid
+            
+                    #runSummary = outputfile.Get('runSummary')
+                    #Entries = runSummary.GetEntries()
+                    #totalEvents = 0
+                    #for i in range(Entries):
+                    #    runSummary.GetEntry(i)
+                    #    totalEvents += runSummary.nEvents
+                    data = outputfile.Get('output')
+
+                    totalevents = round(data.GetEntries()/125000)*125000
+                    totalhitevents = data.Draw("","nhits>0")
+                    detectioneff = totalhitevents/totalevents
+                    detectionrate = detectioneff*rates[_tag][0]
+                    hitevents1 = data.Draw("","nhits==1")
+                    hitevents2 = data.Draw("","nhits==2")
+                    hitevents3 = data.Draw("","nhits==3")
+                    hitevents4 = data.Draw("","nhits==4")
+                    hitevents5 = data.Draw("","nhits==5")
+                    hitevents6 = data.Draw("","nhits==6")
+                    hitevents7 = data.Draw("","nhits==7")
+                    hitevents8 = data.Draw("","nhits==8")
+                    hitevents9 = data.Draw("","nhits==9")
+                    hitevents10 = data.Draw("","nhits==10")
+                    hitevents4plus = data.Draw("","nhits>3")
+
+                    hitevents4plus = data.Draw("","nhits>3")
+                    pmttriggers = [0]*30
+                    totalpmtshit = 0
+                    totalpmtshit4plus = 0
+                    for i in range(totalevents):
+                        data.GetEntry(i)
+                        if data.nhits > 0:
+                            #pmttriggers = data.nhits
+                            #print(data.nhits)
+                            pmttriggers[data.nhits]+=data.nhits
+                            totalpmtshit += data.nhits
+                            if data.nhits > 3:
+                                totalpmtshit4plus += data.nhits
+
+                    print(pmttriggers[0], pmttriggers[1], pmttriggers[2], pmttriggers[3], pmttriggers[4], pmttriggers[5], pmttriggers[6])
+                    pmttriggerrate = []
+                    eventrrate = []
+                    for i in range(30):
+                        pmttriggerrate.append(pmttriggers[i]/totalevents*rates[_tag][0])
+
+
+                    pmttriggerrate4plus = totalpmtshit4plus/totalevents*rates[_tag][0]
+                    singlesrate = 0.0 #singles/totalEvents*rates[_tag][0]
                     rate = rates[_tag][0]
-                    simtime = totalEvents/rates[_tag][0]/60./60./24.
+                    simtime = totalevents/rates[_tag][0]/60./60./24.
                     loclist.append(_loc)
                     decaylist.append(_p)
                     isolist.append(_element)
-                    eventlist.append(totalEvents)
+                    ratelist.append(rate)
+                    eventlist.append(totalevents)
+                    totalhiteventlist.append(totalhitevents)
                     timelist.append(simtime)
-                    triggerlist.append(triggerrate)
-                    singleslist.append(singlesrate)
+                    hiteventlist1.append(hitevents1)
+                    hiteventlist2.append(hitevents2)
+                    hiteventlist3.append(hitevents3)
+                    hiteventlist4.append(hitevents4)
+                    hiteventlist5.append(hitevents5)
+                    hiteventlist6.append(hitevents6)
+                    hiteventlist7.append(hitevents7)
+                    hiteventlist8.append(hitevents8)
+                    hiteventlist9.append(hitevents9)
+                    hiteventlist10.append(hitevents10)
+                    hiteventlist4plus.append(hitevents4plus)
+                    triggerlist1.append(pmttriggerrate[1])
+                    triggerlist2.append(pmttriggerrate[2])
+                    triggerlist3.append(pmttriggerrate[3])
+                    triggerlist4.append(pmttriggerrate[4])
+                    triggerlist5.append(pmttriggerrate[5])
+                    triggerlist6.append(pmttriggerrate[6])
+                    triggerlist7.append(pmttriggerrate[7])
+                    triggerlist8.append(pmttriggerrate[8])
+                    triggerlist9.append(pmttriggerrate[9])
+                    triggerlist10.append(pmttriggerrate[10])
+                    triggerlist4plus.append(pmttriggerrate4plus)
+
+                    detectionefflist.append(detectioneff)
+                    detectionratelist.append(detectionrate)
+                    totalpmtshit4pluslist.append(totalpmtshit4plus)
+
+
+                    #singleslist.append(singlesrate)
                     # calculate 90% upper-confidence limit on singles count (normal)
-                    uc = singles+1.645*sqrt(singles/totalEvents)
+                    #uc = 0.0 #singles+1.645*sqrt(singles/totalEvents)
                     # calculate 90% upper-confidence limit on singles count (binomial)
                     #uc = singles+1.645/totalEvents*(singles*(1-singles/totalEvents))
                     # convert upper-confidence limit to singles rate
-                    uc *= 1/totalEvents*rates[_tag][0]
-                    uclist.append(uc)
-                except:
-                    simsmissing.writelines(f"{_tag}\n")
-                if singlesrate >1e-3 or '210Tl' in _tag:
-                    simsrequired.writelines(f"{_tag}\n")
+                    #uc *= 1/totalEvents*rates[_tag][0]
+                    #uclist.append(uc)
+               # except:
+                    #simsmissing.writelines(f"{_tag}\n")
+                #if singlesrate >1e-3 or '210Tl' in _tag:
+                 #   simsrequired.writelines(f"{_tag}\n")
 
     # create a pandas dataframe with all the information
-    df = pd.DataFrame({"{Component}":loclist, "{Origin}":decaylist,"{Isotope}":isolist,"{Events}":eventlist,"{Time (days)}":timelist,"{Trigger rate (Hz)}":triggerlist,"{Singles rate (Hz)}":singleslist,"{90\% UCL}":uclist})
+    df = pd.DataFrame({"{Component}":loclist, "{Origin}":decaylist,"{Isotope}":isolist, "{Activity rate (Bq)}":ratelist, "{Events}":eventlist,"{Time (days)}":timelist, "{Events detected}":totalhiteventlist, "{Event detection rate (Hz)}":detectionratelist, \
+        "{Events detected (PMT hits > 3)}":hiteventlist4plus, "{Total PMT hits (PMT hits > 3)}":totalpmtshit4pluslist, "PMT trigger rate (PMT hits > 3)(Hz)":triggerlist4plus})
+    #for later, "{Events detected (PMT hits = 1)}":hiteventlist1, "Trigger rate (PMT hits = 1)(Hz)":triggerlist1, "{Events detected (PMT hits = 2)}":hiteventlist2, "Trigger rate (PMT hits = 2)(Hz)":triggerlist2
     # format the names to make them more presentation-friendly
     df = df.replace("CHAIN_","",regex=True)
     df = df.replace("_NA","",regex=True)
@@ -93,8 +189,9 @@ def triggers():
     df = df.replace("SINGLES","All")
     df = df.replace("_hartlepool","",regex=True)
     df = df.sort_values(by=["{Component}","{Origin}","{Isotope}"])
+    df. to_csv('button_background_triggers.csv', index=False)
     # convert to LaTex and do some formatting to work with siunitx
-    triggerdata.writelines(df.to_latex(index=False,escape=False).replace('\\toprule', '\\hline').replace('\\midrule', '\\hline').replace('\\bottomrule','\\hline').replace('lllrrrrr','|l|l|l|S|S|S|S|S|'))
+    triggerdata.writelines(df.to_latex(index=False,escape=False).replace('\\toprule', '\\hline').replace('\\midrule', '\\hline').replace('\\bottomrule','\\hline').replace('lllrrrr','|l|l|l|S|S|S|S|'))
     return 0
 
 
