@@ -194,7 +194,7 @@ def triggers():
     df = df.replace("SINGLES","All")
     df = df.replace("_hartlepool","",regex=True)
     df = df.sort_values(by=["{Component}","{Origin}","{Isotope}"])
-    df. to_csv('button_background_triggers.csv', index=False)
+    df. to_csv('button_background_triggers%s.csv'%(additionalString), index=False)
     # convert to LaTex and do some formatting to work with siunitx
     #triggerdata.writelines(df.to_latex(index=False,escape=False).replace('\\toprule', '\\hline').replace('\\midrule', '\\hline').replace('\\bottomrule','\\hline').replace('lllrrrr','|l|l|l|S|S|S|S|'))
     return 0
