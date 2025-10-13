@@ -308,7 +308,7 @@ def generalMacroGenerator():
 /rat/db/set DAQ[SplitEVDAQ] trigger_threshold 1
 /rat/db/set DAQ[SplitEVDAQ] trigger_window 100
 """ 
-    if arguments['--detectMedia']=='doped_water':
+    if arguments['--detectMedia']=='doped_water' or arguments ['--detectMedia']=='wbls_gd_01pct_ly100_WM_0121':
         recon=f"""
 /rat/db/set BONSAI likelihoodFileName  "/models/bonsai/gd-water.bin"
 /rat/db/set BONSAI useCherenkovAngle 1
