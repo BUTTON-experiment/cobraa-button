@@ -60,12 +60,15 @@ def triggers():
     detectionefflist=[]
     detectionratelist=[]
     totalpmtshit4pluslist=[]
+    hitevents4plusratelist=[]
     for _p in proc:
         for _loc in proc[_p]:
             for _element in d[_p][_loc]:
                 _tag = "%s_%s_%s"%(_element,_loc,_p)
                 _tag = _tag.replace(" ","")
-                _file = "reconstructed_root_files%s/%s_%s_%s/%s_%s_%s_merged.root"%(additionalString,_element,_loc,_p,_element,_loc,_p)
+                #_file = "reconstructed_root_files%s/%s_%s_%s/%s_%s_%s_merged.root"%(additionalString,_element,_loc,_p,_element,_loc,_p)
+                _file = "reconstructed_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
+                _file
                 _file = _file.replace(" ","")
                 if os.path.isfile(_file):
                     print(_tag," from ",_file)
@@ -80,7 +83,7 @@ def triggers():
                     #    totalEvents += runSummary.nEvents
                     data = outputfile.Get('output')
 
-                    totalevents = round(data.GetEntries()/125000)*125000
+                    totalevents = data.GetEntries()#round(data.GetEntries()/50000)*50000
                     totalhitevents = data.Draw("","nhits>0")
                     detectioneff = totalhitevents/totalevents
                     detectionrate = detectioneff*rates[_tag][0]
@@ -96,7 +99,9 @@ def triggers():
                     hitevents10 = data.Draw("","nhits==10")
                     hitevents4plus = data.Draw("","nhits>3")
 
-                    hitevents4plus = data.Draw("","nhits>3")
+                    hitevents4plusrate = hitevents4plus/totalevents*rates[_tag][0]
+                    hitevents4plusratelist.append(hitevents4plusrate)
+                    #hitevents4plus = data.Draw("","nhits>3")
                     pmttriggers = [0]*30
                     totalpmtshit = 0
                     totalpmtshit4plus = 0
@@ -164,14 +169,14 @@ def triggers():
                     # convert upper-confidence limit to singles rate
                     #uc *= 1/totalEvents*rates[_tag][0]
                     #uclist.append(uc)
-               # except:
-                    #simsmissing.writelines(f"{_tag}\n")
+                #except:
+                #    simsmissing.writelines(f"{_tag}\n")
                 #if singlesrate >1e-3 or '210Tl' in _tag:
                  #   simsrequired.writelines(f"{_tag}\n")
 
+    print(len(loclist),len(decaylist),len(ratelist),len(eventlist),len(timelist),len(totalhiteventlist),len(detectionratelist),len(hiteventlist4plus),len(totalpmtshit4pluslist),len(triggerlist4plus))
     # create a pandas dataframe with all the information
-    df = pd.DataFrame({"{Component}":loclist, "{Origin}":decaylist,"{Isotope}":isolist, "{Activity rate (Bq)}":ratelist, "{Events}":eventlist,"{Time (days)}":timelist, "{Events detected}":totalhiteventlist, "{Event detection rate (Hz)}":detectionratelist, \
-        "{Events detected (PMT hits > 3)}":hiteventlist4plus, "{Total PMT hits (PMT hits > 3)}":totalpmtshit4pluslist, "PMT trigger rate (PMT hits > 3)(Hz)":triggerlist4plus})
+    df = pd.DataFrame({"{Component}":loclist, "{Origin}":decaylist,"{Isotope}":isolist, "{Activity rate (Bq)}":ratelist, "{Events}":eventlist,"{Time (days)}":timelist, "{Events detected}":totalhiteventlist, "{Event detection rate (Hz)}":detectionratelist, "{Events detected (PMT hits > 3)}":hiteventlist4plus, "{Events detected (PMT hits > 3) rate}":hitevents4plusratelist})#, "{Total PMT hits (PMT hits > 3)}":totalpmtshit4pluslist, "PMT trigger rate (PMT hits > 3)(Hz)":triggerlist4plus})
     #for later, "{Events detected (PMT hits = 1)}":hiteventlist1, "Trigger rate (PMT hits = 1)(Hz)":triggerlist1, "{Events detected (PMT hits = 2)}":hiteventlist2, "Trigger rate (PMT hits = 2)(Hz)":triggerlist2
     # format the names to make them more presentation-friendly
     df = df.replace("CHAIN_","",regex=True)
@@ -191,7 +196,7 @@ def triggers():
     df = df.sort_values(by=["{Component}","{Origin}","{Isotope}"])
     df. to_csv('button_background_triggers.csv', index=False)
     # convert to LaTex and do some formatting to work with siunitx
-    triggerdata.writelines(df.to_latex(index=False,escape=False).replace('\\toprule', '\\hline').replace('\\midrule', '\\hline').replace('\\bottomrule','\\hline').replace('lllrrrr','|l|l|l|S|S|S|S|'))
+    #triggerdata.writelines(df.to_latex(index=False,escape=False).replace('\\toprule', '\\hline').replace('\\midrule', '\\hline').replace('\\bottomrule','\\hline').replace('lllrrrr','|l|l|l|S|S|S|S|'))
     return 0
 
 
