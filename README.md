@@ -5,8 +5,11 @@ It can be used alongside BONSAI reconstruction.
 
 ##**To install:**
 Navigate to the same directory level as where BUTTON-RAT2 is installed
+
 If you are just going to use cobraa:
+
 ```git clone git@github.com:BUTTON-experiment/cobraa-button.git```
+
 If you are planning on using it for development and changing anything in the program please fork the repository directly on the GitHub and clone that fork instead.
 
 ```cd cobraa-button```
