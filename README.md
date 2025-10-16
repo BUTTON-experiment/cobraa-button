@@ -10,25 +10,34 @@ If you are just going to use cobraa:
 If you are planning on using it for development and changing anything in the program please fork the repository directly on the GitHub and clone that fork instead.
 
 ```cd cobraa-button```
+
 ```./configure```
+
 ```source env_cobraa.sh```
 
 ##**Basic Use:**
 1. Create macros.
-	For Gd-water, the material is called doped_water, use 
+	For Gd-water, the material is called doped_water, use
+
 	```cobraa -m -j -e 2000 -N 1 --singles --bonsai```
+
 	For WbLS with 1%LS, the material is called wbls_gd_01pct_ly100_WM_0121, use
+
 	```cobraa -m -j -e 2000 -N 1 --singles --bonsai --detectMedia wbls_gd_01pct_ly100_WM_0121```
+
 	These options are all written out in load.py. For this option -m = macros are created, -j = create submission scripts, -e = how many events simulated per macro (keep in mind most individual backgrounds will actually simulate 50x this amount usually except U235 chain ones), -N = number of runs to simulate (default is 40 if you do not include this). --singles will let you run each radioactive background separately, --bonsai generates a bonsai fitting macro, --detectMedia allows you to specify the medium in the detector, the only ones with full optics information are doped_water and the WbLS wbls_gd_01pct_ly100_WM_0121.
 2. Run jobs (jobs run locally by default)
+   
 	```source job/job<specific isotope/material you want>.sh```
+
 	If you want to run in a cluster for step 1 include, for example, --cluster Edinburgh. This will change job/job<specific run>.sh to a submission script format Check in io_operations.py to see if one of the existing formats is suitable for your system or if you need to make your own.
-3. Merge ntuple root files and calculate background rates
-	For Gd-water:
-	```cobraa -M --singles --triggers```
-	Output file in this case will be called 'button_background_triggers_BUTTON_singles_doped_water.csv'
-	For WbLS with 1%LS:
-	```cobraa -M --singles --triggers --detectMedia wbls_gd_01pct_ly100_WM_0121```
+
+4. Merge ntuple root files and calculate background rates\n
+	For Gd-water:\n
+	```cobraa -M --singles --triggers```\n
+	Output file in this case will be called 'button_background_triggers_BUTTON_singles_doped_water.csv'\n
+	For WbLS with 1%LS:\n
+	```cobraa -M --singles --triggers --detectMedia wbls_gd_01pct_ly100_WM_0121```\n
 	Output file will be called 'button_background_triggers_BUTTON_singles_wbls_gd_01pct_ly100_WM_0121.csv'
 
 
