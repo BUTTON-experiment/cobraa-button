@@ -3,7 +3,7 @@ The Coincident-background reactor antineutrino analysis is an analysis for react
 
 It can be used alongside BONSAI reconstruction.
 
-##**To install:**
+## **To install:**
 Navigate to the same directory level as where BUTTON-RAT2 is installed
 
 If you are just going to use cobraa:
@@ -18,7 +18,7 @@ If you are planning on using it for development and changing anything in the pro
 
 ```source env_cobraa.sh```
 
-##**Basic Use:**
+## **Basic Use:**
 1. Create macros.
 	For Gd-water, the material is called doped_water, use
 
