@@ -32,12 +32,18 @@ If you are planning on using it for development and changing anything in the pro
 
 	If you want to run in a cluster for step 1 include, for example, --cluster Edinburgh. This will change job/job<specific run>.sh to a submission script format Check in io_operations.py to see if one of the existing formats is suitable for your system or if you need to make your own.
 
-4. Merge ntuple root files and calculate background rates\n
-	For Gd-water:\n
-	```cobraa -M --singles --triggers```\n
-	Output file in this case will be called 'button_background_triggers_BUTTON_singles_doped_water.csv'\n
-	For WbLS with 1%LS:\n
-	```cobraa -M --singles --triggers --detectMedia wbls_gd_01pct_ly100_WM_0121```\n
+4. Merge ntuple root files and calculate background rates
+   
+	For Gd-water:
+
+	```cobraa -M --singles --triggers```
+
+	Output file in this case will be called 'button_background_triggers_BUTTON_singles_doped_water.csv'
+
+	For WbLS with 1%LS:
+
+	```cobraa -M --singles --triggers --detectMedia wbls_gd_01pct_ly100_WM_0121```
+
 	Output file will be called 'button_background_triggers_BUTTON_singles_wbls_gd_01pct_ly100_WM_0121.csv'
 
 
