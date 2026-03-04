@@ -1,5 +1,5 @@
 from ROOT import gDirectory
-from ROOT import TFile,TH2D
+from ROOT import TFile,TH2D,TTree
 import numpy as np
 import time
 from itertools import product,combinations
@@ -37,7 +37,7 @@ def coincidenceMap():
     if arguments['--core']:
         _str = "core_root_files%s/coincidence_results.root"%(additionalString)
     else:
-        _str = "fred_root_files%s/coincidence_results.root"%(additionalString)
+        _str = "reconstructed_root_files%s/coincidence_results.root"%(additionalString)
 #    if os.path.exists(_str):
 #        proceed = intput("File %s already exists. Histograms will be added to the file. Do you want to proceed? Enter y or n:",_str)
 #        if proceed ==n:
@@ -62,7 +62,7 @@ def coincidenceMap():
                         if arguments['--core']:
                             _file = "core_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
                         else:
-                            _file = "fred_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
+                            _file = "reconstructed_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
                         _file = _file.replace(" ","")
                         rate = rates[_tag][0]
                         if 'pn_ibd' in _tag or 'A_Z' in _tag or 'FAST' in _tag or 'singles' in _tag:
@@ -70,8 +70,10 @@ def coincidenceMap():
                         if arguments["--core"]:
                             obtainCoincidencesCoRe(_file,_tag,outfile,rate)
                         else:
-                            obtainCoincidences(_file,_tag,outfile,rate)
-                            print('')
+                            try:
+                                obtainCoincidences(_file,_tag,outfile,rate)
+                                print('')
+                            except: print('Was not able to calculate coincidence')
     else:
         for _p in proc:
             for _loc in proc[_p]:
@@ -81,16 +83,24 @@ def coincidenceMap():
                     if arguments['--core']:
                         _file = "core_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
                     else:
-                        _file = "fred_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
+                        _file = "reconstructed_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
                     _file = _file.replace(" ","")
+                    
                     if 'pn_ibd' in _tag or 'A_Z' in _tag or 'FAST' in _tag or 'singles' in _tag:
-                        rate = rates[_tag][0]
                         print(_tag," from ",_file)
-                        if arguments["--core"]:
-                            obtainCoincidencesCoRe(_file,_tag,outfile,rate)
-                        else:
+                    if 'NA' in _tag:
+                        print('Skipping ',_tag)
+                        continue
+                    if arguments["--core"]:
+                        rate = rates[_tag][0]
+                        obtainCoincidencesCoRe(_file,_tag,outfile,rate)
+                    else:
+                        print("*************************** ",_tag)
+                        try:
+                            rate = rates[_tag][0]
                             obtainCoincidences(_file,_tag,outfile,rate)
-                        print('')
+                            print('')
+                        except: print('Was not able to calculate coincidence')
 
     print('Saving outfile:',_str)
     outfile.Close()
@@ -107,7 +117,7 @@ def obtainCoincidences(file,_tag,outfile,rate):
     hist = {}
 
     # check the root file is valid    
-    try:
+    '''try:
         runSummary = recofile.Get('runSummary')
         runEntries = runSummary.GetEntries()
         
@@ -119,30 +129,85 @@ def obtainCoincidences(file,_tag,outfile,rate):
     for i in range(runEntries):
         runSummary.GetEntry(i)
         totalEvents += runSummary.nEvents
-    print(totalEvents)
+    print(totalEvents)'''
 
     # get only required branches from data tree for speed
-    data         = recofile.Get('data')
+    data         = recofile.Get('output')
     dataEntries  = data.GetEntries()
+    totalEvents = dataEntries
+    print("************************************ ",dataEntries)
     data.SetBranchStatus('*',0)
-    data.SetBranchStatus('%s'%(energyEstimator),1)
-    data.SetBranchStatus('%s_prev'%(energyEstimator),1)
-    data.SetBranchStatus('closestPMT',1)
-    data.SetBranchStatus('inner_hit',1)
-    data.SetBranchStatus('inner_hit_prev',1)
-    data.SetBranchStatus('veto_hit',1)
-    data.SetBranchStatus('veto_hit_prev',1)
-    data.SetBranchStatus('good_pos',1)
-    data.SetBranchStatus('good_pos_prev',1)
-    data.SetBranchStatus('dt_prev_us',1)
+    data.SetBranchStatus('%s_Bonsai'%(energyEstimator),1)#data.SetBranchStatus('%s'%(energyEstimator),1)
+    ##data.SetBranchStatus('%s_prev'%(energyEstimator),1)
+    data.SetBranchStatus('closestPMT_Bonsai',1)#data.SetBranchStatus('closestPMT',1)
+    data.SetBranchStatus('nhits',1)#inner_hit',1)
+    ##data.SetBranchStatus('nhits_prev',1)#inner_hit_prev',1)
+    #data.SetBranchStatus('veto_hit',1)
+    #data.SetBranchStatus('veto_hit_prev',1)
+    data.SetBranchStatus('positionGoodness_Bonsai',1)#good_pos',1)
+    ##data.SetBranchStatus('positionGoodness_Bonsai_prev',1)#good_pos_prev',1)
+    ##data.SetBranchStatus('dt_prev_us',1)
     data.SetBranchStatus('timestamp',1)
-    data.SetBranchStatus('gtid',1)
-    if not arguments['--core']:
-        data.SetBranchStatus('closestPMT_prev',1)
-        data.SetBranchStatus('drPrevr',1)
+    ##data.SetBranchStatus('gtid',1)
+    ##if not arguments['--core']:
+    ##    data.SetBranchStatus('closestPMT_prev',1)
+    ##    data.SetBranchStatus('drPrevr',1)
 
+    newf = TFile('newfile.root',"RECREATE")
+    newtree = TTree("newtree","newtree")#data.CloneTree(0)
+
+
+    n9_prev_val  = np.array([0], dtype=np.float64)
+    positionGoodness_prev_val = np.array([0], dtype=np.float64)
+    nhits_prev_val = np.array([0], dtype=np.float64)
+    closestPMT_prev_val = np.array([0], dtype=np.float64)
+    dt_prev_us_val = np.array([0], dtype=np.float64)
+    drPrevr_val = np.array([0], dtype=np.float64)
+
+    newtree.Branch('n9_prev',n9_prev_val,'n9_prev/D')
+    newtree.Branch('positionGoodness_prev',positionGoodness_prev_val,'positionGoodness_prev/D')
+    newtree.Branch('nhits_prev',nhits_prev_val,'nhits_prev/D')
+    newtree.Branch('closestPMT_prev',closestPMT_prev_val,'closestPMT_prev/D')
+    newtree.Branch('dt_prev_us',dt_prev_us_val,'dt_prev_us/D')
+    newtree.Branch('drPrevr',drPrevr_val,'drPrevr/D')
+
+    for i in range(0,totalEvents):
+        data.GetEntry(i)
+
+        if i==0:
+            n9_prev_val[0]=-999999
+            positionGoodness_prev_val[0]=-999999
+            nhits_prev_val[0]=-999999
+            closestPMT_prev_val[0]=-999999
+            dt_prev_us_val[0]=-999999
+            drPrevr_val[0]=99999999999
+
+        else:
+            n9_prev_val[0]=prev_n9
+            positionGoodness_prev_val[0]=prev_pg
+            nhits_prev_val[0]=prev_nhits
+            closestPMT_prev_val[0]=prev_cp
+            dt_prev_us_val[0]=data.timestamp-prev_t
+            dx=data.x_Bonsai-prev_x;dy=data.y_Bonsai-prev_y;dz=data.z_Bonsai-prev_z
+            drPrevr_val[0]=np.sqrt(dx*dx+dy*dy+dz*dz)
+
+        prev_n9=data.n9_Bonsai
+        prev_pg=data.positionGoodness_Bonsai
+        prev_nhits=data.nhits
+        prev_cp=data.closestPMT_Bonsai
+        prev_t=data.timestamp
+        prev_x=data.x_Bonsai
+        prev_y=data.y_Bonsai
+        prev_z=data.z_Bonsai
+        newtree.Fill()
+
+        #print(i,data.nhits,nhits_prev_val[i],drPrevr_val[i])
+    #print(closestPMT_prev_val)
+    data.AddFriend(newtree)
+    
     # now we can evaluate the event coincidence
     # and scale down to the day rate
+    counter=0
     for delayed_nxcut,dTcut,maxEp,gcut,dRcut in product(drange(minNXdelayed,rangeNXdmax,binwidthNX),drange(dTmin,rangedTmax,binwidthdT),drange(minEpmax,rangeEpmax,binwidthEpmax),drange(gmin,rangeGmax,binwidthG),drange(dRmin,rangedRmax,binwidthdR)):
         tag = _tag+'_delayed%s_%d_%dus_maxEp%d_%d'%(energyEstimator,delayed_nxcut,dTcut,maxEp,gcut*10)
         histname = "hist_%s;1"%(tag)
@@ -162,16 +227,19 @@ def obtainCoincidences(file,_tag,outfile,rate):
                 if prompt_nxcut<delayed_nxcut:
                     continue
 
+            
+            print('** ',counter,' ** ',delayed_nxcut,dTcut,maxEp,gcut,dRcut,fidcut,prompt_nxcut)
+            counter+=1    
             # define the prompt/delayed/coincidence cuts
             coincidences=0
-            delayedtrigger  = "closestPMT/1000.>%f"%(fidcut)
-            delayedtrigger  += "&& good_pos>%f " %(gcut)
-            delayedtrigger  += "&& inner_hit > 10 &&  veto_hit < 4"
-            delayedtrigger  += "&& %s > %f" %(energyEstimator,delayed_nxcut) 
+            delayedtrigger  = "closestPMT_Bonsai/1000.>%f"%(fidcut)#"closestPMT/1000.>%f"%(fidcut)
+            delayedtrigger  += "&& positionGoodness_Bonsai>%f " %(gcut)#"&& good_pos>%f " %(gcut)
+            delayedtrigger  += "&& nhits>3"#"&& inner_hit > 10 &&  veto_hit < 4"
+            delayedtrigger  += "&& %s_Bonsai > %f" %(energyEstimator,delayed_nxcut)
 
             coincidencetrigger =  delayedtrigger
-            coincidencetrigger += "&& good_pos_prev>%f"%(gcut)
-            coincidencetrigger += "&& inner_hit_prev > 10 && veto_hit_prev <4"
+            coincidencetrigger += "&& positionGoodness_prev>%f"%(gcut)#good_pos_prev>%f"%(gcut)
+            coincidencetrigger += "&& nhits_prev > 3"#inner_hit_prev > 10 && veto_hit_prev <4"
             coincidencetrigger += "&& %s_prev > %f"%(energyEstimator,prompt_nxcut)
             coincidencetrigger += "&& dt_prev_us > 1 && dt_prev_us < %f"%(dTcut) 
             coincidencetrigger += "&& %s_prev < %f"%(energyEstimator,maxEp)
@@ -214,10 +282,10 @@ def obtainCoincidences(file,_tag,outfile,rate):
         
         outfile.cd()
         hist[tag].Write()
-    
+        del hist[tag]
     # end loop over delayed nx, dT and dR cuts
     recofile.Close()
-    del data
+    del data,newtree
     print("--- %s seconds ---" % (time.time() - start_time))
     return
 

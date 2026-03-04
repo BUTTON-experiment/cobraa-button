@@ -265,7 +265,7 @@ def loadSimulationParameters():
                 'TANK':['60Co'],\
                 'IBEAM':['60Co']}
         d['137Cs_NA'] = {'PSUP':['137Cs']}
-        #d['pn_ibd'] = {'LIQUID':['boulby_geo','hartlepool_1','hartlepool_2','boulby_worldbg','heysham_full','heysham_2','torness_full','gravelines_full','hinkley_C','sizewell_B']}
+        d['pn_ibd'] = {'LIQUID':['boulby_geo','hartlepool_1','hartlepool_2','boulby_worldbg','heysham_full','heysham_2','torness_full','gravelines_full','hinkley_C','sizewell_B']}
 
         d['singles'] = {'ALL':['singles']}
         d['A_Z'] = {'LIQUID':['li 9','n 17','he 8']}
@@ -284,7 +284,7 @@ def loadSimulationParameters():
         '40K_NA':['LIQUID','PMT','PSUP', 'IBEAM','TANK','ROCK_2'],\
         '60Co_NA':['TANK','PSUP','IBEAM'],\
         '137Cs_NA':['PSUP'],\
-        #'pn_ibd':['LIQUID'],\
+        'pn_ibd':['LIQUID'],\
         'A_Z':['LIQUID'],\
         'singles':['ALL'],\
         'mono':['LIQUID'],\
@@ -350,7 +350,7 @@ def loadSimulationParameters():
                 'TANK':['137Cs'],\
                 'IBEAM':['137Cs']}
 
-        #d['pn_ibd'] = {'LIQUID':['boulby_geo','hartlepool_1','hartlepool_2','boulby_worldbg','heysham_full','heysham_2','torness_full','gravelines_full','hinkley_C','sizewell_B']}
+        d['pn_ibd'] = {'LIQUID':['boulby_geo','hartlepool_1','hartlepool_2','boulby_worldbg','heysham_full','heysham_2','torness_full','gravelines_full','hinkley_C','sizewell_B']}
 
         d['singles'] = {'ALL':['singles']}
         d['A_Z'] = {'LIQUID':['li 9','n 17','he 8']}
@@ -372,7 +372,7 @@ def loadSimulationParameters():
         '60Co_NA':['TANK','PSUP','IBEAM','PMT','ENCAP','LINER'],\
         '54Mn_NA':['PSUP','TANK','ENCAP'],\
         '137Cs_NA':['TANK','PSUP','IBEAM'],\
-        #'pn_ibd':['LIQUID'],\
+        'pn_ibd':['LIQUID'],\
         'A_Z':['LIQUID'],\
         'singles':['ALL'],\
         'mono':['LIQUID'],\
@@ -396,18 +396,20 @@ def loadSimulationParameters():
     # TODO removed for now, need correct rates if used
     # TODO spontaneous fission not included
     # TODO only 9Li, 17N and 8He are included for spallation
+    pmtVolCorr = 30./8363. #Not sure what to change the 3 boulby values to so just scaling them by the ratio of the detector masses for BUTTON vs. the 22m diameter x 22 m high proposed detector that the previous values were based on. - Emma
+    mass_tonne = 30
     jobRate = {\
-#'hartlepool_1_LIQUID_pn_ibd': [1.052e-04*pmtVolCorr , 1],\
-#'hartlepool_2_LIQUID_pn_ibd': [7.889e-05*pmtVolCorr , 1],\
-#'boulby_geo_LIQUID_pn_ibd': [6.368e-06*pmtVolCorr , 1],\
-#'boulby_world_LIQUID_pn_ibd': [2.146e-05*pmtVolCorr , 1],\
-#'heysham_full_LIQUID_pn_ibd': [1.231e-05*pmtVolCorr , 1],\
-#'heysham_2_LIQUID_pn_ibd': [7.005e-06*pmtVolCorr , 1],\
-#'torness_full_LIQUID_pn_ibd': [4.422e-06*pmtVolCorr , 1],\
-#'boulby_worldbg_LIQUID_pn_ibd': [1.491e-05*pmtVolCorr , 1],\
-#'gravelines_full_LIQUID_pn_ibd': [2.6e-06*pmtVolCorr , 1],\
-#'hinkley_C_LIQUID_pn_ibd': [2.565e-06*pmtVolCorr , 1],\
-#'sizewell_B_LIQUID_pn_ibd': [1.331e-06*pmtVolCorr , 1],\
+'hartlepool_1_LIQUID_pn_ibd': [8.922e-9*mass_tonne , 1], \
+'hartlepool_2_LIQUID_pn_ibd': [8.450e-9*mass_tonne , 1],\
+'boulby_geo_LIQUID_pn_ibd': [6.368e-06*pmtVolCorr , 1],\
+'boulby_world_LIQUID_pn_ibd': [2.146e-05*pmtVolCorr , 1],\
+'heysham_full_LIQUID_pn_ibd': [1.2214e-9*mass_tonne , 1],\
+'heysham_2_LIQUID_pn_ibd': [6.884e-10*mass_tonne , 1],\
+'torness_full_LIQUID_pn_ibd': [4.114e-10*mass_tonne , 1],\
+'boulby_worldbg_LIQUID_pn_ibd': [1.491e-05*pmtVolCorr , 1],\
+'gravelines_full_LIQUID_pn_ibd': [3.1506e-10*mass_tonne , 1],\
+'hinkley_C_LIQUID_pn_ibd': [1e-20*mass_tonne , 1],\
+'sizewell_B_LIQUID_pn_ibd': [1.655e-10*mass_tonne , 1],\
 '40K_LIQUID_40K_NA': [1.20e-1, 50], \
 '40K_PMT_40K_NA': [1.07e+01 * kip, 50], \
 '40K_IBEAM_40K_NA': [0, 50], \
@@ -564,6 +566,7 @@ def loadSimulationParameters():
 'gamma_LIQUID_mono':[1,1],\
 'rock_neutrons_ROCK_2_RADIOGENIC': [6.58E-1,1],\
 'rock_neutrons_ROCK_1_RADIOGENIC': [6.54, 1],\
+'fast_neutrons_ROCK_1_FASTNEUTRONS': [8.26E-03, 1],\
 'fast_neutrons_ROCK_2_FASTNEUTRONS': [8.26E-03, 1]}
 
     return d,process,jobRate
