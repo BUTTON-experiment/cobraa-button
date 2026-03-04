@@ -48,7 +48,7 @@ def calculateSensitivity():
     if arguments['--core']:
         resultsstr = "core_root_files%s/coincidence_results.root"%(additionalString)
     else:
-        resultsstr = "fred_root_files%s/coincidence_results.root"%(additionalString)
+        resultsstr = "reconstructed_root_files%s/coincidence_results.root"%(additionalString)
     resultsFile = TFile(resultsstr,"READ")
     print('reading in coincidence maps from %s'%(resultsstr))
 
@@ -89,21 +89,22 @@ def calculateSensitivity():
                     _str = "%s_%s_%s"%(_element,_loc,_p)
                     _str = _str.replace(" ","")
                     if 'pn_ibd' in _tag or 'A_Z' in _tag or 'FASTNEUTRONS' in _tag:
-#                        print('correlated event, getting %s from %s\n'%(_tag,resultsstr))
+                        print('correlated event, getting %s from %s'%(_tag,resultsstr))
                         hist[_tag] = resultsFile.Get(_tag)
                     elif 'singles' in _tag:
-                        #print('uncorrelated event, getting %s from %s\n'%(_tag,resultsstr))
+                        print('uncorrelated event, getting %s from %s'%(_tag,resultsstr))
                         hist[_tag] = resultsFile.Get(_tag)
                     else:
+                        print('Neither correlated nor uncorrelated, %s\n'%(_tag))
                         continue
 
                     try:
                         #print(' entries:',hist[_tag].GetEntries(),' ... ', end = '')
-                        if 'singles' in _tag: 
-                            #print('identified as accidentals')
+                        if 'singles' in _tag:
+                            print('%s, identified as accidentals'%(_tag))
                             hacc["hAcc%d%d%d%d"%(delayed_nxcut,dTcut,maxEp,gcut*10)].Add(hist[_tag],1)
                         elif 'pn_ibd' in _tag:
-                            #print('%s identified as IBD pair events\n\n'%(_tag))
+                            print('%s identified as IBD pair events'%(_tag))
                             if 'geo' in _tag:
                                 hgeo["hGeo%d%d%d%d"%(delayed_nxcut,dTcut,maxEp,gcut*10)].Add(hist[_tag],1)
                             if arguments["--GSH"]:
@@ -200,15 +201,18 @@ def calculateSensitivity():
                             if 'li9' in _tag:
                                 hist[_tag].Scale(0.069)
                                 hli9["hRNli%d%d%d%d"%(delayed_nxcut,dTcut,maxEp,gcut*10)].Add(hist[_tag],1)
+                                hli9.Draw()
                             elif 'n17' in _tag:
                                 hist[_tag].Scale(0.85)
                                 hn17["hRNn%d%d%d%d"%(delayed_nxcut,dTcut,maxEp,gcut*10)].Add(hist[_tag],1)
                         else:
                             print('not added to rates histogram')
                             continue
+                    
 
                     except:
                         print("Could not find ",_tag,". Skipping entry.")
+                    print(" ")
     print("\nCompleted reading in of histogram, accidental and IBD identifitication. \n\n")
 
     optSignal,optBg,optSoB,optNXdelayed,optNXprompt,optDTW,optdT,optdR,optFidcut,optE,optG = -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
@@ -290,6 +294,12 @@ def calculateSensitivity():
                 background = accRate + rnRate + reacibdBgRate +fnRate + geoibdBgRate # background rate
                 bgError = sqrt(pow(accError,2)+pow(rnError,2)+pow(reacibdBgError,2)+pow(fnError,2)+pow(geoibdBgError,2))
                 totSysError = sqrt(rnSysError*rnSysError+fnSysError*fnSysError+reacibdBgSysError*reacibdBgSysError+geoibdBgSysError*geoibdBgSysError)
+
+                print("** Signal : ",signal)
+                print("** Background : %.3e +/- %.3e" %(background,totSysError))
+                #print("** Background Components : \n Accidentals : %.3e +/- %.3e \n Fast Neutrons : %.3e +/- %.3e \n Reactor Background IBD : %.3e +/- %.3e \n Boulby Geo : %.3e +/- %.3e \n Li9 : %.3e +/- %.3e \n N17 : %.3e +/- %.3e" %(accRate,accError,fnRate,fnError,reacibdBgRate,reacibdBgError,geoibdBgRate,geoibdBgError,li9Rate,li9Error,n17Rate,n17Error))
+                #print("^^^^^^^^^^ ",accRate,fnRate,reacibdBgRate,geoibdBgRate,li9Rate,n17Rate,rnRate)
+                #print("&&&&&&&&&&& ",accError,fnError,reacibdBgError,geoibdBgError,li9Error,n17Error,rnError)
 
 		# calculate the signal over background and/or dwell time metric
                 if arguments['--poissonpoisson']:
@@ -442,10 +452,10 @@ def calculateSensitivity():
     print('\n\nMore info on the maximal sensitivity found:')
     # print line
 
-    for _l in line:
+    '''for _l in line:
         for i in range(len(_l)):
             print(_l[i], end=' ')
-        print('')
+        print('')'''
 
     print("1-month significance: ",optSignal*30/sqrt(optBg*180+(optTotSysErr*180)**2))
     print("3-month significance: ",optSignal*90/sqrt(optBg*180+(optTotSysErr*180)**2))
@@ -480,7 +490,7 @@ def calculateSensitivity():
     if arguments['--core']:
         analysisfile = "core_root_files%s/sensitivity_results.root"%(additionalString)
     else:
-        analysisfile = "fred_root_files%s/sensitivity_results.root"%(additionalString)
+        analysisfile = "reconstructed_root_files%s/sensitivity_results.root"%(additionalString)
     print('\n\nWriting histograms to file',analysisfile)
     f_root = TFile(analysisfile,"recreate")
     for delayed_nxcut,dTcut,maxEp,gcut in product(drange(minNXdelayed,rangeNXdmax,binwidthNX),drange(dTmin,rangedTmax,binwidthdT),drange(minEpmax,rangeEpmax,binwidthEpmax),drange(gmin,rangeGmax,binwidthG)):

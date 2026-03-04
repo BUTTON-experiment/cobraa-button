@@ -68,7 +68,7 @@ def triggers():
                 _tag = _tag.replace(" ","")
                 #_file = "reconstructed_root_files%s/%s_%s_%s/%s_%s_%s_merged.root"%(additionalString,_element,_loc,_p,_element,_loc,_p)
                 _file = "reconstructed_root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
-                _file
+                
                 _file = _file.replace(" ","")
                 if os.path.isfile(_file):
                     print(_tag," from ",_file)
@@ -102,14 +102,14 @@ def triggers():
                     hitevents4plusrate = hitevents4plus/totalevents*rates[_tag][0]
                     hitevents4plusratelist.append(hitevents4plusrate)
                     #hitevents4plus = data.Draw("","nhits>3")
-                    pmttriggers = [0]*30
+                    pmttriggers = [0]*120
                     totalpmtshit = 0
                     totalpmtshit4plus = 0
                     for i in range(totalevents):
                         data.GetEntry(i)
                         if data.nhits > 0:
                             #pmttriggers = data.nhits
-                            #print(data.nhits)
+                            if data.nhits>90: print(data.nhits)
                             pmttriggers[data.nhits]+=data.nhits
                             totalpmtshit += data.nhits
                             if data.nhits > 3:
@@ -238,7 +238,7 @@ def backgrounds():
                 print("opening ",_tag,"from ",_file)
 
                 for fidcut in drange(minFid,rangeFidmax,binwidthFid):
-                    nevts = data.Draw("","n9>0 && closestPMT/1000.>%f"%(fidcut),"goff")
+                    nevts = data.Draw("","n9_Consai>0 && closestPMT_Bonsai/1000.>%f"%(fidcut),"goff")
                     rate = nevts/totalEvents*rates[_tag][0]
                     if 'PMT' in _tag:
                         hPMT.Fill(fidcut,rate)
@@ -258,19 +258,19 @@ def backgrounds():
                         hROCK.Fill(fidcut,rate)
                     elif 'A_Z' in _tag:
                         hRN.Fill(fidcut,rate)
-#                    elif 'pn_ibd' in _tag:
-#                        hIBD.Fill(fidcut,rate)
+                    elif 'pn_ibd' in _tag:
+                        hIBD.Fill(fidcut,rate)
     
 
     hPMT.SetLineColor(TColor.GetColor(Tol_bright[0]))
     hPSUP.SetLineColor(TColor.GetColor(Tol_bright[1]))
     hTANK.SetLineColor(TColor.GetColor(Tol_bright[2]))
     hLIQUID.SetLineColor(TColor.GetColor(Tol_bright[3]))
-#    hFN.SetLineColor(TColor.GetColor(Tol_bright[4]))
+    hFN.SetLineColor(TColor.GetColor(Tol_bright[4]))
     hIBEAM.SetLineColor(TColor.GetColor(Tol_bright[5]))
     hROCK.SetLineColor(TColor.GetColor(Tol_bright[6]))
-#    hRN.SetLineColor(TColor.GetColor(Tol_bright[7]))
-#    hIBD.SetLineColor(1)
+    hRN.SetLineColor(TColor.GetColor(Tol_bright[7]))
+    hIBD.SetLineColor(1)
 
     c1 = TCanvas()
     hs = THStack("hs","")

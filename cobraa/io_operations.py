@@ -59,6 +59,7 @@ def generateMacros():
                     outfile.writelines(detectorvolume)
                     outfile.close
                     #print(_p,_loc,_element)
+ 
 
     # write the macros for the detector geometry and rat processors
     header,processors,recon,daq = generalMacroGenerator()
@@ -216,7 +217,7 @@ source {ratDir+'/../../env.sh'} && source {butDir+'/'+experimentStr.lower()+'.sh
                 else:
 
                     if 'NA' in _p or 'RADIOGENIC' in _p: 
-                        outfile_singlesscript.writelines(f" mac/_{_element}_{_loc}_{_p}/phys_{_element}.mac mac/{_element}_{_loc}_{_p}/geo_{_loc}.mac mac/{_element}_{_loc}_{_p}/rates_{_element}_{_loc}_{_p}.mac") 
+                        outfile_singlesscript.writelines(f" mac/{_element}_{_loc}_{_p}/phys_{_element}.mac mac/{_element}_{_loc}_{_p}/geo_{_loc}.mac mac/{_element}_{_loc}_{_p}/rates_{_element}_{_loc}_{_p}.mac") 
                     elif 'singles' in _p:
                         for i in range(nsetSingles):
                             file = f"{dir}/job{additionalString}_{_element}_{_loc}_{_p}_{i}.sh".replace(" ","")
@@ -266,6 +267,7 @@ def mergeRootFiles():
         for _loc in proc[_p]:
             for _element in d[_p][_loc]:
                 _p = _p.replace(" ","")
+                _element = _element.replace(" ","")
                 print("Generating jobs:",_p,_loc,_element)
                 outfile = "root_files%s/merged_%s_%s_%s.root"%(additionalString,_element,_loc,_p)
                 outfile = outfile.replace(" ","")
@@ -281,6 +283,8 @@ def mergeRootFiles():
                      #   filedir = "raw_root_files%s/%s_%s_%s/"%(additionalString,_element,_loc,_p)
                     #else:
                     filedir = "reconstructed_root_files%s/%s_%s_%s/"%(additionalString,_element,_loc,_p)
+                    print(outfile)
+                    print(filedir)
                     if os.path.exists(filedir):
                         if len(os.listdir(filedir))>0:
                             os.system(f'hadd -f -k -v 0 reconstructed_{outfile} reconstructed_{files}')
