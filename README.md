@@ -24,6 +24,7 @@ If you are planning on using it for development and changing anything in the pro
 
 
 ### **Using cobraa for reactor neutrino studies:**
+Note that this is a work in progress. There are still things (as of 2026-03-04) that have not been worked out, for example how many of events in each of the reactions needs to be run or what exact statistical mode should be used for the significance.
 
 1. Create macros and simulation jobs for a small-ish number of events (Gd-water by default, here showing 1% WbLS). Change number of events (-e) and number of runs (-N) if you want.
 
