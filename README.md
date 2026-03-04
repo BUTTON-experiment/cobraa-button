@@ -1,10 +1,25 @@
 **Cobraa**
-Coincident-background reactor antineutrino analysis is an analysis for reactor discovery via the simulation and evaluation of coincident events. It can also optionally use reconstruction of coincident events.
-Cobraa is also used to study backgrounds in the detector.
 
 It's a toolchain which handles full-detector simulation through to sensitivity analysis for BUTTON or any other input geometry and different fills.
 
 Adapted by Liz Kneale from the WATCHMAN Watchmakers package (Author: Marc Bergevin, LLNL), it constitutes a significant overhaul of the original Watchmakers code. Retains the convenience of the directory organisation and macro/job production but incorporates streamlining and a full analysis update. Updated by Emma Ellingwood for the BUTTON experiment.
+
+
+## **To install:**
+Navigate to the same directory level as where BUTTON-RAT2 is installed
+
+If you are just going to use cobraa:
+
+```git clone git@github.com:BUTTON-experiment/cobraa-button.git```
+
+If you are planning on using it for development and changing anything in the program please fork the repository directly on the GitHub and clone that fork instead.
+
+```cd cobraa-button```
+
+```./configure```
+
+```source env_cobraa.sh```
+
 
 
 
@@ -45,7 +60,9 @@ Adapted by Liz Kneale from the WATCHMAN Watchmakers package (Author: Marc Bergev
      ```cobraa --coincidences --detectMedia wbls_gd_01pct_ly100_WM_0121 [options]```
      If you choose options in the coincidence it appears to be good to include them here as well.
      For example, ```cobraa --coincidences --detectMedia wbls_gd_01pct_ly100_WM_0121 --maxNXprompt 7 --maxNXdelayed 7 --dRmax 1.8 --maxEpmax 30```
-     
+
+
+
 ### **Using cobraa for detector background studies:**
 
 1. Create macros and simulation jobs (Gd-water by default, here showing 1% WbLS). Note that for most 238U and 232Th chains for different components, the actual number of events is 50x the number of events given in -e. If a particular component decay has a very low activity it may be necessary to run more events in order to get any detectable signals.
